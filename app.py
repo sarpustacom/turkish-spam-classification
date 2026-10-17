@@ -8,7 +8,7 @@ from flask import Flask, jsonify, render_template, request
 from werkzeug.exceptions import HTTPException
 
 MODEL_DIR = Path(__file__).parent / "model"
-MODEL_PATH = MODEL_DIR / "spam_classifier.joblib"
+MODEL_PATH = MODEL_DIR / "spam_classifier_v2.joblib"
 METADATA_PATH = MODEL_DIR / "metadata.json"
 MAX_MESSAGE_LENGTH = 5000
 
