@@ -19,6 +19,13 @@
   const resultDescription = document.getElementById("result-description");
   const resetBtn = document.getElementById("reset-btn");
   const themeToggle = document.getElementById("theme-toggle");
+  const feedbackOpenBtn = document.getElementById("feedback-open-btn");
+  const feedbackForm = document.getElementById("feedback-form");
+  const feedbackSaveBtn = document.getElementById("feedback-save-btn");
+  const feedbackCancelBtn = document.getElementById("feedback-cancel-btn");
+  const feedbackError = document.getElementById("feedback-error");
+  const feedbackSuccess = document.getElementById("feedback-success");
+  const FEEDBACK_URL = "/feedback";
 
   const maxLength = Number(textarea.getAttribute("maxlength"));
   const percentFormat = new Intl.NumberFormat("tr-TR", {
@@ -117,8 +124,11 @@
 
   // ---- Result ----
 
-  function showResult(label, spamScore) {
+  function showResult(label, spamScore, message) {
     const isSpam = label === "spam";
+    analyzedMessage = message;
+    predictedLabel = label;
+    resetFeedback();
     const percent = Math.round(spamScore * 1000) / 10;
 
     result.classList.toggle("is-spam", isSpam);
@@ -150,7 +160,122 @@
     result.hidden = true;
     result.classList.remove("visible", "is-spam", "is-ham");
     progressBar.style.width = "0";
+    analyzedMessage = null;
+    resetFeedback();
   }
+
+  // ---- Feedback ----
+
+  // The exact message that produced the current result (not the live textarea).
+  let analyzedMessage = null;
+  let predictedLabel = null;
+  let feedbackSaving = false;
+  let feedbackRequestId = 0;
+
+  function selectedFeedbackLabel() {
+    const checked = feedbackForm.querySelector('input[name="feedback-label"]:checked');
+    return checked ? checked.value : null;
+  }
+
+  function setFeedbackSaving(value) {
+    feedbackSaving = value;
+    feedbackSaveBtn.classList.toggle("loading", value);
+    feedbackSaveBtn.setAttribute("aria-busy", String(value));
+    feedbackSaveBtn.disabled = value || !selectedFeedbackLabel();
+    feedbackCancelBtn.disabled = value;
+    feedbackForm.querySelectorAll('input[name="feedback-label"]').forEach(function (input) {
+      input.disabled = value;
+    });
+  }
+
+  function closeFeedbackForm() {
+    feedbackForm.hidden = true;
+    feedbackError.hidden = true;
+    feedbackError.textContent = "";
+    feedbackOpenBtn.hidden = false;
+    feedbackOpenBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function resetFeedback() {
+    feedbackRequestId++; // ignore any response still in flight
+    setFeedbackSaving(false);
+    closeFeedbackForm();
+    feedbackForm.reset();
+    feedbackSaveBtn.disabled = true;
+    feedbackSuccess.hidden = true;
+    feedbackSuccess.textContent = "";
+  }
+
+  feedbackOpenBtn.addEventListener("click", function () {
+    feedbackSuccess.hidden = true;
+    feedbackForm.reset();
+    // Pre-select the opposite of the model's answer, since this is a correction.
+    const suggested = predictedLabel === "spam" ? "ham" : "spam";
+    const input = feedbackForm.querySelector('input[value="' + suggested + '"]');
+    input.checked = true;
+    feedbackSaveBtn.disabled = false;
+    feedbackForm.hidden = false;
+    feedbackOpenBtn.hidden = true;
+    feedbackOpenBtn.setAttribute("aria-expanded", "true");
+    input.focus();
+  });
+
+  feedbackForm.addEventListener("change", function () {
+    feedbackSaveBtn.disabled = feedbackSaving || !selectedFeedbackLabel();
+  });
+
+  feedbackCancelBtn.addEventListener("click", function () {
+    closeFeedbackForm();
+    feedbackOpenBtn.focus();
+  });
+
+  feedbackForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const label = selectedFeedbackLabel();
+    if (!label || !analyzedMessage || feedbackSaving) return;
+
+    const requestId = ++feedbackRequestId;
+    feedbackError.hidden = true;
+    setFeedbackSaving(true);
+
+    let errorMessage = null;
+    let saved = null;
+    try {
+      const response = await fetch(FEEDBACK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: analyzedMessage, label: label }),
+      });
+      const data = response.ok ? await response.json() : null;
+      if (data && data.status === "saved" && data.label === label) {
+        saved = data;
+      } else {
+        errorMessage = response.status === 400
+          ? "Düzeltme geçersiz. Lütfen bir seçim yapıp tekrar deneyin."
+          : "Düzeltme kaydedilemedi. Lütfen tekrar deneyin.";
+      }
+    } catch (e) {
+      errorMessage = "Sunucuya bağlanılamadı. Düzeltme kaydedilmedi.";
+    }
+
+    if (requestId !== feedbackRequestId) return; // result changed meanwhile
+    setFeedbackSaving(false);
+
+    if (!saved) {
+      feedbackError.textContent = errorMessage;
+      feedbackError.hidden = false;
+      return;
+    }
+
+    // Shown only after the server confirmed the save.
+    closeFeedbackForm();
+    const labelText = label === "spam" ? "Spam" : "Normal (Ham)";
+    feedbackSuccess.textContent = saved.updated
+      ? "Düzeltmeniz güncellendi: " + labelText + ". Teşekkürler!"
+      : "Düzeltmeniz kaydedildi: " + labelText + ". Teşekkürler!";
+    feedbackSuccess.hidden = false;
+    feedbackOpenBtn.focus();
+  });
 
   resetBtn.addEventListener("click", function () {
     hideResult();
@@ -189,7 +314,7 @@
         return;
       }
 
-      showResult(data.label, data.spam_score);
+      showResult(data.label, data.spam_score, message);
     } catch (e) {
       showError("Sunucuya bağlanılamadı. Bağlantınızı kontrol edip tekrar deneyin.");
     } finally {

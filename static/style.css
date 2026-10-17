@@ -67,6 +67,10 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -398,6 +402,68 @@ textarea:focus-visible {
   color: var(--text-muted);
 }
 
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Feedback */
+.feedback-form {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.feedback-fieldset {
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--input-bg);
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.choice:hover {
+  border-color: var(--text-muted);
+}
+
+.choice:has(input:checked) {
+  border-color: var(--focus);
+  background: color-mix(in srgb, var(--focus) 8%, var(--surface));
+}
+
+.choice input {
+  margin: 0;
+  accent-color: var(--focus);
+}
+
+.feedback-success {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--ham-soft);
+  color: var(--ham);
+  font-size: 14px;
+}
+
 .footer {
   margin-top: 32px;
   text-align: center;
@@ -427,7 +493,8 @@ textarea:focus-visible {
     display: none;
   }
 
-  .btn {
+  .btn,
+  .choice {
     width: 100%;
   }
 }

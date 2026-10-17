@@ -74,12 +74,42 @@
           <div class="progress-bar" id="progress-bar"></div>
         </div>
         <p class="result-description" id="result-description"></p>
-        <button type="button" class="btn btn-secondary" id="reset-btn">Yeni mesaj analiz et</button>
+        <div class="result-actions">
+          <button type="button" class="btn btn-secondary" id="reset-btn">Yeni mesaj analiz et</button>
+          <button type="button" class="btn btn-secondary" id="feedback-open-btn"
+                  aria-expanded="false" aria-controls="feedback-form">Analizi Düzelt</button>
+        </div>
+
+        <form class="feedback-form" id="feedback-form" novalidate hidden>
+          <fieldset class="feedback-fieldset">
+            <legend class="field-label">Bu mesajın doğru sınıfı:</legend>
+            <div class="choice-group">
+              <label class="choice">
+                <input type="radio" name="feedback-label" value="ham">
+                <span>Normal (Ham)</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="feedback-label" value="spam">
+                <span>Spam</span>
+              </label>
+            </div>
+          </fieldset>
+          <div class="result-actions">
+            <button type="submit" class="btn btn-primary" id="feedback-save-btn" disabled>
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="btn-label">Kaydet</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="feedback-cancel-btn">İptal</button>
+          </div>
+          <div class="error" id="feedback-error" role="alert" hidden></div>
+        </form>
+
+        <p class="feedback-success" id="feedback-success" role="status" hidden></p>
       </section>
     </main>
 
     <footer class="footer">
-      Mesajlar yalnızca analiz için kullanılır; saklanmaz.
+      Mesajlar yalnızca analiz için kullanılır; yalnızca düzeltme gönderdiğinizde kaydedilir.
     </footer>
   </div>
 

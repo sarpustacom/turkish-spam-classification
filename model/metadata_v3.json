@@ -1,0 +1,61 @@
+{
+  "model_version": "v3",
+  "architecture": "TextVectorization -> Embedding -> Bidirectional(LSTM) -> Dropout -> Dense(sigmoid)",
+  "threshold": 0.7023550271987915,
+  "classes": [
+    "ham",
+    "spam"
+  ],
+  "positive_label": "spam",
+  "output": "single sigmoid unit = spam probability",
+  "input": "raw message string, shape (batch, 1)",
+  "config": {
+    "max_tokens": 20000,
+    "sequence_length": 64,
+    "embedding_dim": 128,
+    "lstm_units": 64,
+    "dropout": 0.5,
+    "batch_size": 32,
+    "max_epochs": 30,
+    "learning_rate": 0.001,
+    "early_stopping_patience": 3
+  },
+  "vocabulary_size": 19644,
+  "standardize": "spam_v3>turkish_standardize (import train_bilstm before loading)",
+  "class_weight": {
+    "ham": 0.6849479104298887,
+    "spam": 1.8517319520880544
+  },
+  "epochs_run": 5,
+  "best_epoch": 2,
+  "dataset": "turkish_spam_combined.csv",
+  "dataset_fingerprint": "3f5f2a0507a9c6e4b107deb7842b23dcfa23c139e1d9f54cd6d79d91591ac2d4",
+  "feedback_file": "user_feedback.csv",
+  "data_sources": {
+    "main_records": 19034,
+    "feedback_records": 21,
+    "duplicates_resolved": 1,
+    "feedback_overrode_main": 0,
+    "feedback_labels_changed": 0,
+    "feedback_new_messages": 21,
+    "feedback_excluded_in_eval_set": 0,
+    "main_train_duplicates_removed": 1,
+    "main_train_rows_overlapping_eval_removed": 0,
+    "final_records": 19054
+  },
+  "class_distribution": {
+    "ham": 13905,
+    "spam": 5149
+  },
+  "split": {
+    "train": 11440,
+    "validation": 3807,
+    "test": 3807
+  },
+  "split_indices_file": "split_indices.json",
+  "random_state": 42,
+  "tensorflow_version": "2.21.0",
+  "keras_version": "3.15.1",
+  "python_version": "3.11.17",
+  "trained_at": "2026-10-17T18:37:29.100074+00:00"
+}
