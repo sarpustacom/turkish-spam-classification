@@ -1,0 +1,22 @@
+{
+  "threshold": 0.6828784680890222,
+  "classes": [
+    "ham",
+    "spam"
+  ],
+  "positive_label": "spam",
+  "dataset": "jason1966/aiwithcagri_trke-spam-sms-ve-sms-kategorileri",
+  "split": {
+    "train": 8580,
+    "validation": 2860,
+    "test": 2861
+  },
+  "class_distribution": {
+    "ham": 11672,
+    "spam": 2629
+  },
+  "random_state": 42,
+  "sklearn_version": "1.9.1",
+  "python_version": "3.11.17",
+  "trained_at": "2026-10-17T14:10:27.082342+00:00"
+}
